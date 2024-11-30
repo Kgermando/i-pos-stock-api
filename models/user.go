@@ -20,23 +20,26 @@ type User struct {
 	Status          bool       `json:"status"`
 	EntrepriseID    uint       `json:"entreprise_id"`
 	Entreprise      Entreprise `gorm:"foreignKey:EntrepriseID"`
+	PosID           uint       `json:"pos_id"`
+	Pos             Pos        `gorm:"foreignKey:PosID"`
 	Signature       string     `json:"signature"`
 	Code            string     `json:"code" gorm:"-"`
 	Name            string     `json:"name" gorm:"-"`
 }
 
 type UserResponse struct {
-	Id         uint   `json:"id,omitempty"`
-	Fullname   string `json:"fullname"`
-	Email      string `json:"email"`
-	Telephone  string `json:"telephone"`
-	Role       string `json:"role"`
-	Permission string `json:"permission"`
-	Status     bool   `json:"status"`
+	Id         uint       `json:"id,omitempty"`
+	Fullname   string     `json:"fullname"`
+	Email      string     `json:"email"`
+	Telephone  string     `json:"telephone"`
+	Role       string     `json:"role"`
+	Permission string     `json:"permission"`
+	Status     bool       `json:"status"`
 	Entreprise Entreprise `json:"entreprise"`
-	Signature  string    `json:"signature"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	Pos        Pos        `json:"pos"`
+	Signature  string     `json:"signature"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 type Login struct {

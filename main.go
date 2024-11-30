@@ -1,7 +1,6 @@
 package main
 
-import (
-	"crypto/tls"
+import ( 
 	"log" 
 	"os"
 	"strings"
@@ -62,25 +61,27 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	cert, err := tls.LoadX509KeyPair("192.168.100.143.pem", "192.168.100.143-key.pem")
-	if err != nil {
-		log.Fatal(err)
-	}
+	// cert, err := tls.LoadX509KeyPair("192.168.100.143.pem", "192.168.100.143-key.pem")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
  
 
-	// Configuration TLS
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}
+	// // Configuration TLS
+	// tlsConfig := &tls.Config{
+	// 	Certificates: []tls.Certificate{cert},
+	// }
 
-	// linkIp := fmt.Sprintf("https://192.168.1.81:%s", getPort())
+	// // linkIp := fmt.Sprintf("https://192.168.1.81:%s", getPort())
 
-	// Démarrage du serveur HTTPS
-	listener, err := tls.Listen("tcp", "192.168.100.143:3000", tlsConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// // Démarrage du serveur HTTPS
+	// listener, err := tls.Listen("tcp", "192.168.100.143:3000", tlsConfig)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	log.Fatal(app.Listener(listener))
+	// log.Fatal(app.Listener(listener))
+
+	log.Fatal(app.Listen(GetPort()))
 
 }

@@ -82,7 +82,7 @@ func GetPaginatedUsers(c *fiber.Ctx) error {
 // Query all data ID
 func GetPaginatedUserByID(c *fiber.Ctx) error {
 	db := database.DB
-	UserID := c.Params("user_id")
+	EntrepriseID := c.Params("entreprise_id")
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -100,12 +100,13 @@ func GetPaginatedUserByID(c *fiber.Ctx) error {
 
 	var length int64
 	var data []models.User
-	db.Model(data).Where("id = ?", UserID).Count(&length)
-	db.Where("id = ?", UserID).
+	db.Model(data).Where("entreprise_id = ?", EntrepriseID).Count(&length)
+	db.Where("entreprise_id = ?", EntrepriseID).
 		Where("fullname ILIKE ? OR role ILIKE ?", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
 		Order("users.updated_at DESC").
+		Preload("Entreprise").
 		Find(&dataList)
 
 	if err != nil {
@@ -160,21 +161,7 @@ func GetUserByID(c *fiber.Ctx) error {
 	})
 }
 
-// query data
-func GetUserByIDCount(c *fiber.Ctx) error {
-	entrepriseId := c.Params("entreprise_id")
-	db := database.DB
-	var users []models.User
-	var count int64
-	db.Model(users).Where("entreprise_id = ?", entrepriseId).Count(&count)
-
-	return c.JSON(fiber.Map{
-		"status":  "success",
-		"message": "users by id count",
-		"data":    count,
-	})
-}
-
+ 
 // Get one data
 func GetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
