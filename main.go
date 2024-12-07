@@ -1,7 +1,7 @@
 package main
 
-import ( 
-	"log" 
+import (
+	"log"
 	"os"
 	"strings"
 
@@ -40,7 +40,7 @@ func main() {
 
 	// Middleware
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "https://i-stock-pos.onrender.com, http://localhost:4200, http://192.168.1.81:4200, http://192.168.100.143:4200",
+		AllowOrigins:     "https://pos-stock-production.up.railway.app, https://192.168.0.196:4200, https://localhost:4200",
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: true,
 		AllowMethods: strings.Join([]string{
@@ -53,29 +53,20 @@ func main() {
 		}, ","),
 	}))
 
-	routes.Setup(app)  
+	routes.Setup(app)
 
-	// Chargement des certificats SSL
-	// cert, err := tls.LoadX509KeyPair("192.168.1.81.pem", "192.168.1.81-key.pem")
+	// cert, err := tls.LoadX509KeyPair("192.168.0.196.pem", "192.168.0.196-key.pem")
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
-
-	// cert, err := tls.LoadX509KeyPair("192.168.100.143.pem", "192.168.100.143-key.pem")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
- 
 
 	// // Configuration TLS
 	// tlsConfig := &tls.Config{
 	// 	Certificates: []tls.Certificate{cert},
 	// }
-
-	// // linkIp := fmt.Sprintf("https://192.168.1.81:%s", getPort())
-
+	
 	// // Démarrage du serveur HTTPS
-	// listener, err := tls.Listen("tcp", "192.168.100.143:3000", tlsConfig)
+	// listener, err := tls.Listen("tcp", "192.168.0.196:3000", tlsConfig)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }

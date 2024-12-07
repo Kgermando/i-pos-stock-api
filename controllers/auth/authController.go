@@ -1,6 +1,6 @@
 package auth
 
-import ( 
+import (
 	"os"
 	"strconv"
 	"strings"
@@ -39,7 +39,7 @@ func Register(c *fiber.Ctx) error {
 		Role:         nu.Role,
 		Permission:   nu.Permission,
 		Status:       nu.Status,
-		EntrepriseID: nu.EntrepriseID, 
+		EntrepriseID: nu.EntrepriseID,
 		Signature:    nu.Signature,
 	}
 
@@ -115,11 +115,11 @@ func Login(c *fiber.Ctx) error {
 		Name:     "token",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24), // 1 day,
-		Secure: true, 
-		HTTPOnly: true, 
-		SameSite: "Lax",
-		Domain: "192.168.100.143", // "192.168.1.81",
-		Path:     "/", 
+		Secure:   true,
+		HTTPOnly: true,
+		SameSite: "none",
+		Domain:   ".railway.app",
+		Path:     "/",
 	}
 
 	c.Cookie(&cookie)
@@ -133,7 +133,7 @@ func Login(c *fiber.Ctx) error {
 
 func AuthUser(c *fiber.Ctx) error {
 
-	cookie := c.Cookies("token")  
+	cookie := c.Cookies("token")
 
 	userId, _ := utils.VerifyJwt(cookie)
 
@@ -189,7 +189,7 @@ func UpdateInfo(c *fiber.Ctx) error {
 		})
 	}
 
-	cookie := c.Cookies("token")   
+	cookie := c.Cookies("token")
 	Id, _ := utils.VerifyJwt(cookie)
 
 	userId, _ := strconv.Atoi(Id)
@@ -228,7 +228,7 @@ func ChangePassword(c *fiber.Ctx) error {
 		})
 	}
 
-	cookie := c.Cookies("token") 
+	cookie := c.Cookies("token")
 
 	userId, _ := utils.VerifyJwt(cookie)
 
