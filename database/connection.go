@@ -47,6 +47,7 @@ func Connect() {
 		&models.Product{},
 		&models.Stock{},
 		&models.UniteVente{},
+		&models.Facture{},
 	)
 
 }

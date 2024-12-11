@@ -39,8 +39,7 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 			products.reference AS reference,
 			products.name AS name,
 			stocks.quantity AS quantity,
-			stocks.prix_achat AS prix_achat,
-			stocks.prix_vente AS prix_vente,
+			stocks.prix_achat AS prix_achat, 
 			stocks.date_expiration AS date_expiration,
 			fournisseurs.name AS fournisseur,
 			stocks.signature AS signature,
@@ -142,7 +141,6 @@ func UpdateStock(c *fiber.Ctx) error {
 		FournisseurID  uint
 		Quantity       uint64    `json:"quantity"`
 		PrixAchat      float64   `json:"prix_achat"`
-		PrixVente      float64   `json:"prix_vente"`
 		DateExpiration time.Time `json:"date_expiration"`
 		Signature      string    `json:"signature"`
 	}
@@ -168,7 +166,6 @@ func UpdateStock(c *fiber.Ctx) error {
 	stock.FournisseurID = updateData.FournisseurID
 	stock.Quantity = updateData.Quantity
 	stock.PrixAchat = updateData.PrixAchat
-	stock.PrixVente = updateData.PrixVente
 	stock.DateExpiration = updateData.DateExpiration
 	stock.Signature = updateData.Signature
 

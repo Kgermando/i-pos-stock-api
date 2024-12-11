@@ -161,7 +161,6 @@ func GetUserByID(c *fiber.Ctx) error {
 	})
 }
 
- 
 // Get one data
 func GetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
@@ -218,6 +217,7 @@ func CreateUser(c *fiber.Ctx) error {
 		Role:         p.Role,
 		Permission:   p.Permission,
 		Status:       p.Status,
+		Currency:     p.Currency,
 		EntrepriseID: p.EntrepriseID,
 		Entreprise:   p.Entreprise,
 		Signature:    p.Signature,
@@ -263,7 +263,9 @@ func UpdateUser(c *fiber.Ctx) error {
 		Role         string `json:"role"`
 		Permission   string `json:"permission"`
 		Status       bool   `json:"status"`
+		Currency     string `json:"currency"`
 		EntrepriseID uint   `json:"entreprise_id"`
+		PosID        uint   `json:"pos_id"`
 		Signature    string `json:"signature"`
 	}
 	var updateData UpdateDataInput
@@ -287,7 +289,9 @@ func UpdateUser(c *fiber.Ctx) error {
 	user.Role = updateData.Role
 	user.Permission = updateData.Permission
 	user.Status = updateData.Status
+	user.Currency = updateData.Currency
 	user.EntrepriseID = updateData.EntrepriseID
+	user.PosID = updateData.PosID
 	user.Signature = updateData.Signature
 
 	db.Save(&user)

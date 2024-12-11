@@ -39,6 +39,7 @@ func Register(c *fiber.Ctx) error {
 		Role:         nu.Role,
 		Permission:   nu.Permission,
 		Status:       nu.Status,
+		Currency:     nu.Currency,
 		EntrepriseID: nu.EntrepriseID,
 		Signature:    nu.Signature,
 	}
@@ -118,7 +119,7 @@ func Login(c *fiber.Ctx) error {
 		Secure:   true,
 		HTTPOnly: true,
 		SameSite: "none",
-		Domain:   ".railway.app",
+		Domain:   "192.168.0.196", // ".railway.app",
 		Path:     "/",
 	}
 
@@ -149,7 +150,9 @@ func AuthUser(c *fiber.Ctx) error {
 		Role:       u.Role,
 		Permission: u.Permission,
 		Status:     u.Status,
+		Currency:   u.Currency,
 		Entreprise: u.Entreprise,
+		Pos:        u.Pos,
 		CreatedAt:  u.CreatedAt,
 		UpdatedAt:  u.UpdatedAt,
 	}

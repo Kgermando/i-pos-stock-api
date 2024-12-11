@@ -8,6 +8,7 @@ type Commande struct {
 	PosID         uint           `json:"pos_id"`
 	Pos           Pos            `gorm:"foreignKey:PosID"`
 	NCommande     uint64         `gorm:"not null" json:"n_commande"` // Number Random
+	Status        string         `json:"status"`                     // Ouverte et Fermée
 	ClientID      uint           `json:"client_id"`
 	Client        Client         `gorm:"foreignKey:ClientID"`
 	Signature     string         `json:"signature"`

@@ -12,6 +12,7 @@ type Product struct {
 	Description     string            `gorm:"not null" json:"description"`
 	UniteVenteID    uint              `json:"unite_vente_id"` // Par Bouteille, Sachet, Carton, Paquet, ...
 	UniteVente      UniteVente        `gorm:"foreignKey:UniteVenteID"`
+	PrixVente       float64           `gorm:"not null" json:"prix_vente"`
 	Signature       string            `json:"signature"`
 	BonCommadeLines []BonCommandeLine `gorm:"foreignKey:ProductID"`
 	Stocks          []Stock           `gorm:"foreignKey:ProductID"`

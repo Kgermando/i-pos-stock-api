@@ -123,8 +123,9 @@ func UpdateCommande(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		PosID     uint 
+		PosID     uint
 		NCommande uint64 `json:"n_commande"` // Number Random
+		Status    string `json:"status"`     // Ouverte et Fermée
 		ClientID  uint
 		Signature string `json:"signature"`
 	}
@@ -146,6 +147,7 @@ func UpdateCommande(c *fiber.Ctx) error {
 	db.First(&commande, id)
 	commande.PosID = updateData.PosID
 	commande.NCommande = updateData.NCommande
+	commande.Status = updateData.Status
 	commande.ClientID = updateData.ClientID
 	commande.Signature = updateData.Signature
 

@@ -124,11 +124,12 @@ func UpdateProduct(c *fiber.Ctx) error {
 
 	type UpdateData struct {
 		CategoryID   uint
-		Reference    string `json:"reference"`
-		Name         string `json:"name"`
-		Description  string `json:"description"`
-		UniteVenteID uint
-		Signature    string `json:"signature"`
+		Reference    string  `json:"reference"`
+		Name         string  `json:"name"`
+		Description  string  `json:"description"`
+		UniteVenteID uint    `json:"unite_vente_id"`
+		PrixVente    float64 `json:"prix_vente"`
+		Signature    string  `json:"signature"`
 	}
 
 	var updateData UpdateData
@@ -151,6 +152,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 	product.Name = updateData.Name
 	product.Description = updateData.Description
 	product.UniteVenteID = updateData.UniteVenteID
+	product.PrixVente = updateData.PrixVente
 	product.Signature = updateData.Signature
 
 	db.Save(&product)

@@ -138,13 +138,27 @@ func GetAllPoss(c *fiber.Ctx) error {
 	})
 }
 
+// Get All data
+func GetAllPosById(c *fiber.Ctx) error {
+	db := database.DB
+	EntrepriseID := c.Params("entreprise_id")
+ 
+	var data []models.Pos
+	db.Where("entreprise_id = ?", EntrepriseID).Find(&data)
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "All poss",
+		"data":    data,
+	})
+}
+
 // Get one data
 func GetPos(c *fiber.Ctx) error {
 	id := c.Params("id")
 	db := database.DB
 	var pos models.Pos
 	db.Preload("Stocks").
-	Preload("BonCommades").
+	// Preload("BonCommades").
 	Preload("Commandes").Find(&pos, id)
 	if pos.Name == "" {
 		return c.Status(404).JSON(

@@ -57,6 +57,7 @@ func Setup(app *fiber.App) {
 	// POS controller
 	p := api.Group("/pos")
 	p.Get("/all", pos.GetAllPoss)
+	p.Get("/all/:entreprise_id", pos.GetAllPosById)
 	p.Get("/all/paginate", pos.GetPaginatedPos)
 	p.Get("/all/paginate/:entreprise_id", pos.GetPaginatedPosByID)
 	p.Get("/get/:id", pos.GetPos)
@@ -137,6 +138,16 @@ func Setup(app *fiber.App) {
 	cmdl.Post("/create", commande.CreateCommandeLine) 
 	cmdl.Put("/update/:id", commande.UpdateCommandeLine)
 	cmdl.Delete("/delete/:id", commande.DeleteCommandeLine)
+
+	// Facture controller
+	f := api.Group("/factures")
+	f.Get("/all", commande.GetAllFactures)
+	f.Get("/all/paginate", commande.GetPaginatedFacture)
+	f.Get("/all/paginate/:commande_id", commande.GetPaginatedFactureByID)
+	f.Get("/get/:id", commande.GetFacture)
+	f.Post("/create", commande.CreateFacture)
+	f.Put("/update/:id", commande.UpdateFacture)
+	f.Delete("/delete/:id", commande.DeleteFacture)
 
 	// Client controller
 	cl := api.Group("/clients")

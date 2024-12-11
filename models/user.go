@@ -18,6 +18,7 @@ type User struct {
 	Role            string     `json:"role"`
 	Permission      string     `json:"permission"`
 	Status          bool       `json:"status"`
+	Currency        string     `json:"currency"`
 	EntrepriseID    uint       `json:"entreprise_id"`
 	Entreprise      Entreprise `gorm:"foreignKey:EntrepriseID"`
 	PosID           uint       `json:"pos_id"`
@@ -35,6 +36,7 @@ type UserResponse struct {
 	Role       string     `json:"role"`
 	Permission string     `json:"permission"`
 	Status     bool       `json:"status"`
+	Currency   string     `json:"currency"`
 	Entreprise Entreprise `json:"entreprise"`
 	Pos        Pos        `json:"pos"`
 	Signature  string     `json:"signature"`
