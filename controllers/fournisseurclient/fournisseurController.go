@@ -11,6 +11,7 @@ import (
 
 // Paginate
 func GetPaginatedFournisseur(c *fiber.Ctx) error {
+	codeEntreprise := c.Params("code_entreprise")
 	db := database.DB
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
@@ -25,11 +26,10 @@ func GetPaginatedFournisseur(c *fiber.Ctx) error {
 
 	search := c.Query("search", "")
 
-	var dataList []models.Fournisseur
-
+	var dataList []models.Fournisseur 
 	var length int64
-	db.Model(dataList).Count(&length)
-	db.
+	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).Count(&length)
+	db.Where("code_entreprise = ?", codeEntreprise).
 		Where("name ILIKE ?", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -64,9 +64,11 @@ func GetPaginatedFournisseur(c *fiber.Ctx) error {
 
 // Get All data
 func GetAllFournisseurs(c *fiber.Ctx) error {
+	codeEntreprise := c.Params("code_entreprise")
 	db := database.DB
+
 	var data []models.Fournisseur
-	db.Preload("Stocks").Find(&data)
+	db.Where("code_entreprise = ?", codeEntreprise).Preload("Stocks").Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All fournisseurs",
@@ -78,6 +80,7 @@ func GetAllFournisseurs(c *fiber.Ctx) error {
 func GetFournisseur(c *fiber.Ctx) error {
 	id := c.Params("id")
 	db := database.DB
+
 	var fournisseur models.Fournisseur
 	db.Preload("Stocks").Find(&fournisseur, id)
 	if fournisseur.Name == "" {
@@ -123,11 +126,12 @@ func UpdateFournisseur(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		Name      string `json:"name"`
-		Adresse   string `json:"adresse"`
-		Email     string `json:"email"`
-		Telephone string `json:"telephone"`
-		Signature string `json:"signature"`
+		Name           string `json:"name"`
+		Adresse        string `json:"adresse"`
+		Email          string `json:"email"`
+		Telephone      string `json:"telephone"`
+		Signature      string `json:"signature"`
+		CodeEntreprise uint   `json:"code_entreprise"`
 	}
 
 	var updateData UpdateData
@@ -150,6 +154,7 @@ func UpdateFournisseur(c *fiber.Ctx) error {
 	fournisseur.Email = updateData.Email
 	fournisseur.Telephone = updateData.Telephone
 	fournisseur.Signature = updateData.Signature
+	fournisseur.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&fournisseur)
 

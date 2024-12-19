@@ -119,7 +119,7 @@ func Login(c *fiber.Ctx) error {
 		Secure:   true,
 		HTTPOnly: true,
 		SameSite: "none",
-		Domain:   "192.168.0.196", // ".railway.app",
+		Domain:   "192.168.0.8", // ".railway.app",
 		Path:     "/",
 	}
 
@@ -140,7 +140,7 @@ func AuthUser(c *fiber.Ctx) error {
 
 	u := models.User{}
 
-	database.DB.Where("id = ?", userId).Preload("Entreprise").First(&u)
+	database.DB.Where("id = ?", userId).Preload("Entreprise").Preload("Pos").First(&u)
 
 	r := &models.UserResponse{
 		Id:         u.ID,

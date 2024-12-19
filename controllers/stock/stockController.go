@@ -13,6 +13,7 @@ import (
 // Paginate
 func GetPaginatedStock(c *fiber.Ctx) error {
 	db := database.DB
+	productId := c.Params("product_id")
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -29,10 +30,10 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 	var dataList []models.Stock
 
 	var length int64
-	db.Model(dataList).Count(&length)
-	db.
+	db.Model(dataList).Where("product_id = ?", productId).Count(&length)
+	db.Where("product_id = ?", productId).
 		Joins("JOIN products ON stocks.product_id=products.id").
-		Joins("JOIN fournisseurs ON stocks.fournisseur_id=fournisseurs.id").
+		// Joins("JOIN fournisseurs ON stocks.fournisseur_id=fournisseurs.id").
 		Where("products.name ILIKE ? OR products.reference ILIKE ?", "%"+search+"%", "%"+search+"%").
 		Select(`
 			stocks.id AS id,
@@ -41,12 +42,14 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 			stocks.quantity AS quantity,
 			stocks.prix_achat AS prix_achat, 
 			stocks.date_expiration AS date_expiration,
-			fournisseurs.name AS fournisseur,
-			stocks.signature AS signature,
+			stocks.description AS description,
+			stocks.signature AS signature
 		`).
 		Offset(offset).
 		Limit(limit).
 		Order("stocks.updated_at DESC").
+		Preload("Product").
+		Preload("Fournisseur").
 		Find(&dataList)
 
 	if err != nil {
@@ -74,6 +77,23 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 	})
 }
 
+// Get Total data
+func GetTotalStock(c *fiber.Ctx) error {
+	db := database.DB
+	productId := c.Params("product_id")
+
+	var data []models.Stock
+	var totalQty int64
+
+	db.Model(data).Where("product_id = ?", productId).Select("SUM(quantity)").Scan(&totalQty)
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "Total qty stocks",
+		"data":    totalQty,
+	})
+}
+
 // Get All data
 func GetAllStocks(c *fiber.Ctx) error {
 	db := database.DB
@@ -90,6 +110,7 @@ func GetAllStocks(c *fiber.Ctx) error {
 func GetStock(c *fiber.Ctx) error {
 	id := c.Params("id")
 	db := database.DB
+
 	var stock models.Stock
 	db.Find(&stock, id)
 	if stock.ProductID == 0 {
@@ -135,10 +156,10 @@ func UpdateStock(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		PosID          uint
-		ProductID      uint
-		Description    string `json:"description"`
-		FournisseurID  uint
+		PosID          uint      `json:"pos_id"`
+		ProductID      uint      `json:"product_id"`
+		Description    string    `json:"description"`
+		FournisseurID  uint      `json:"fournisseur_id"`
 		Quantity       uint64    `json:"quantity"`
 		PrixAchat      float64   `json:"prix_achat"`
 		DateExpiration time.Time `json:"date_expiration"`

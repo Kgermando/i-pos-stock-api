@@ -37,13 +37,13 @@ func GetPaginatedCommandeLine(c *fiber.Ctx) error {
 			products.reference AS reference,
 			products.name AS name,
 			products.description AS description,
-			products.unite_ventes.name AS unite,
+			products.unite_vente AS unite_vente,
 			commande_lines.quantity AS quantity,
-			commande_lines.prix_vente AS prix_vente
+			products.prix_vente AS prix_vente
 		`).
 		Offset(offset).
 		Limit(limit).
-		Order("commande_lines.updated_at DESC"). 
+		Order("commande_lines.updated_at DESC").
 		Find(&dataList)
 
 	if err != nil {
@@ -102,9 +102,11 @@ func GetPaginatedCommandeLineByID(c *fiber.Ctx) error {
 			products.reference AS reference,
 			products.name AS name,
 			products.description AS description,
-			products.unite_ventes.name AS unite,
+			products.unite_vente AS unite_vente,
 			commande_lines.quantity AS quantity,
-			commande_lines.prix_vente AS prix_vente
+			products.prix_vente AS prix_vente,
+			products.tva AS tva,
+			SUM(commande_lines.quantity::FLOAT * products.prix_vente::FLOAT)
 		`).
 		Offset(offset).
 		Limit(limit).
@@ -138,6 +140,42 @@ func GetPaginatedCommandeLineByID(c *fiber.Ctx) error {
 }
 
 // Get All data
+func GetAllCommandeLineById(c *fiber.Ctx) error {
+	db := database.DB
+	commandeID := c.Params("commande_id")
+
+	var dataList []models.CommandeLine
+	db.Where("commande_lines.commande_id = ?", commandeID). 
+		Order("commande_lines.updated_at DESC").
+		Preload("Commande").
+		Preload("Product").
+		Find(&dataList)
+
+		// db.Joins("JOIN commandes ON commande_lines.commande_id=commandes.id").
+		// Joins("JOIN products ON commande_lines.product_id=products.id").
+		// Where("commande_lines.commande_id = ?", commandeID).
+		// Select(`
+		// 	commande_lines.id AS id,
+		// 	products.reference AS reference,
+		// 	products.name AS name,
+		// 	products.description AS description,
+		// 	products.unite_vente AS unite_vente,
+		// 	commande_lines.quantity AS quantity,
+		// 	products.prix_vente AS prix_vente,
+		// 	products.tva AS tva
+		// `).
+		// Order("commande_lines.updated_at DESC").
+		// Preload("Commande").
+		// Preload("Product").
+		// Find(&dataList)
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "All commande lines",
+		"data":    dataList,
+	})
+}
+
+// Get All data
 func GetAllCommandeLines(c *fiber.Ctx) error {
 	db := database.DB
 	var data []models.CommandeLine
@@ -146,6 +184,23 @@ func GetAllCommandeLines(c *fiber.Ctx) error {
 		"status":  "success",
 		"message": "All commandes",
 		"data":    data,
+	})
+}
+
+// Get Total data
+func GetTotalCommandeLine(c *fiber.Ctx) error {
+	db := database.DB
+	productId := c.Params("product_id")
+
+	var data []models.CommandeLine
+	var totalQty int64
+
+	db.Model(data).Where("product_id = ?", productId).Select("SUM(quantity)").Scan(&totalQty)
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "Total qty stocks",
+		"data":    totalQty,
 	})
 }
 
@@ -198,10 +253,10 @@ func UpdateCommandeLine(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		CommandeID uint `json:"commande_id"`
-		ProductID  uint `json:"product_id"`
-		Quantity   uint64  `json:"quantity"`
-		PrixVente  float64 `json:"prix_vente"`
+		CommandeID     uint   `json:"commande_id"`
+		ProductID      uint   `json:"product_id"`
+		Quantity       uint64 `json:"quantity"`
+		CodeEntreprise uint   `json:"code_entreprise"`
 	}
 
 	var updateData UpdateData
@@ -222,7 +277,7 @@ func UpdateCommandeLine(c *fiber.Ctx) error {
 	commandeLine.CommandeID = updateData.CommandeID
 	commandeLine.ProductID = updateData.ProductID
 	commandeLine.Quantity = updateData.Quantity
-	commandeLine.PrixVente = updateData.PrixVente
+	commandeLine.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&commandeLine)
 

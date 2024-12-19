@@ -35,9 +35,9 @@ func Connect() {
 	connection.AutoMigrate(
 		&models.User{},
 		&models.Entreprise{},
-		&models.BonCommande{},
-		&models.BonCommandeLine{},
-		&models.Category{},
+		// &models.BonCommande{},
+		// &models.BonCommandeLine{},
+		// &models.Category{},
 		&models.Client{},
 		&models.Commande{},
 		&models.CommandeLine{},
@@ -45,9 +45,8 @@ func Connect() {
 		&models.Fournisseur{},
 		&models.Pos{},
 		&models.Product{},
-		&models.Stock{},
-		&models.UniteVente{},
-		&models.Facture{},
+		&models.Stock{}, 
+		&models.StockDispo{},
 	)
 
 }

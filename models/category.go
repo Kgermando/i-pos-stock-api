@@ -7,5 +7,5 @@ type Category struct {
 
 	Name      string    `gorm:"not null" json:"category"`
 	Signature string    `json:"signature"`
-	Products  []Product `gorm:"foreignKey:CategoryID"`
+	// Products  []Product `gorm:"foreignKey:CategoryID"`
 }

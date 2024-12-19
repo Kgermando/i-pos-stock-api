@@ -10,8 +10,9 @@ import (
 )
 
 // Paginate
-func GetPaginatedCommande(c *fiber.Ctx) error {
+func GetPaginatedCommandeEntreprise(c *fiber.Ctx) error {
 	db := database.DB
+	codeEntreprise := c.Params("code_entreprise")
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -28,9 +29,66 @@ func GetPaginatedCommande(c *fiber.Ctx) error {
 	var dataList []models.Commande
 
 	var length int64
-	db.Model(dataList).Count(&length)
-	db.
-		Where("n_commande ILIKE ?", "%"+search+"%").
+	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).Count(&length)
+	db.Where("code_entreprise = ?", codeEntreprise). 
+		Where("ncommande::text ILIKE ? OR status ILIKE ?", "%"+search+"%", "%"+search+"%").
+		Offset(offset).
+		Limit(limit).
+		Order("commandes.updated_at DESC").
+		Preload("CommandeLines").
+		Find(&dataList)
+ 
+
+	if err != nil {
+		fmt.Println("error s'est produite: ", err)
+		return c.Status(500).SendString(err.Error())
+	}
+
+	// Calculate total number of pages
+	totalPages := len(dataList) / limit
+	if remainder := len(dataList) % limit; remainder > 0 {
+		totalPages++
+	}
+	pagination := map[string]interface{}{
+		"total_pages": totalPages,
+		"page":        page,
+		"page_size":   limit,
+		"length":      length,
+	}
+
+	return c.JSON(fiber.Map{
+		"status":     "success",
+		"message":    "All commandes",
+		"data":       dataList,
+		"pagination": pagination,
+	})
+}
+
+// Paginate
+func GetPaginatedCommande(c *fiber.Ctx) error {
+	db := database.DB
+	codeEntreprise := c.Params("code_entreprise")
+	posId := c.Params("pos_id")
+
+	page, err := strconv.Atoi(c.Query("page", "1"))
+	if err != nil || page <= 0 {
+		page = 1 // Default page number
+	}
+	limit, err := strconv.Atoi(c.Query("limit", "15"))
+	if err != nil || limit <= 0 {
+		limit = 15
+	}
+	offset := (page - 1) * limit
+
+	search := c.Query("search", "")
+
+	var dataList []models.Commande
+
+	var length int64
+	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).Count(&length)
+	db.Where("code_entreprise = ?", codeEntreprise).
+		Where("pos_id = ?", posId).
+		Where("ncommande ILIKE ?", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
 		Order("commandes.updated_at DESC").
@@ -65,8 +123,13 @@ func GetPaginatedCommande(c *fiber.Ctx) error {
 // Get All data
 func GetAllCommandes(c *fiber.Ctx) error {
 	db := database.DB
+	codeEntreprise := c.Params("code_entreprise")
+	posId := c.Params("pos_id")
+
 	var data []models.Commande
-	db.Preload("CommandeLines").Find(&data)
+	db.Where("code_entreprise = ?", codeEntreprise).
+		Where("pos_id = ?", posId).
+		Preload("CommandeLines").Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All commandes",
@@ -80,7 +143,7 @@ func GetCommande(c *fiber.Ctx) error {
 	db := database.DB
 	var commande models.Commande
 	db.Preload("CommandeLines").Find(&commande, id)
-	if commande.NCommande == 0 {
+	if commande.Ncommande == 0 {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -123,11 +186,12 @@ func UpdateCommande(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		PosID     uint
-		NCommande uint64 `json:"n_commande"` // Number Random
-		Status    string `json:"status"`     // Ouverte et Fermée
-		ClientID  uint
-		Signature string `json:"signature"`
+		PosID          uint   `json:"pos_id"`
+		Ncommande      uint64 `json:"ncommande"` // Number Random
+		Status         string `json:"status"`     // Ouverte et Fermée
+		ClientID       uint   `json:"client_id"`
+		Signature      string `json:"signature"`
+		CodeEntreprise uint   `json:"code_entreprise"`
 	}
 
 	var updateData UpdateData
@@ -146,10 +210,11 @@ func UpdateCommande(c *fiber.Ctx) error {
 
 	db.First(&commande, id)
 	commande.PosID = updateData.PosID
-	commande.NCommande = updateData.NCommande
+	commande.Ncommande = updateData.Ncommande
 	commande.Status = updateData.Status
 	commande.ClientID = updateData.ClientID
 	commande.Signature = updateData.Signature
+	commande.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&commande)
 
@@ -171,7 +236,7 @@ func DeleteCommande(c *fiber.Ctx) error {
 
 	var commande models.Commande
 	db.First(&commande, id)
-	if commande.NCommande == 0 {
+	if commande.Ncommande == 0 {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",

@@ -12,6 +12,7 @@ import (
 // Paginate
 func GetPaginatedContact(c *fiber.Ctx) error {
 	db := database.DB
+	codeEntreprise := c.Params("code_entreprise")
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -28,8 +29,8 @@ func GetPaginatedContact(c *fiber.Ctx) error {
 	var dataList []models.Contact
 
 	var length int64
-	db.Model(dataList).Count(&length)
-	db.
+	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).Count(&length)
+	db.Where("code_entreprise = ?", codeEntreprise).
 		Where("fullname ILIKE ? OR email ILIKE ?", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -64,8 +65,10 @@ func GetPaginatedContact(c *fiber.Ctx) error {
 // Get All data
 func GetAllContacts(c *fiber.Ctx) error {
 	db := database.DB
+	codeEntreprise := c.Params("code_entreprise")
+
 	var data []models.Contact
-	db.Find(&data)
+	db.Where("code_entreprise = ?", codeEntreprise).Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All contacts",
@@ -75,10 +78,12 @@ func GetAllContacts(c *fiber.Ctx) error {
 
 // Get one data
 func GetContact(c *fiber.Ctx) error {
+	codeEntreprise := c.Params("code_entreprise")
 	id := c.Params("id")
 	db := database.DB
+
 	var contact models.Contact
-	db.Find(&contact, id)
+	db.Where("code_entreprise = ?", codeEntreprise).Find(&contact, id)
 	if contact.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

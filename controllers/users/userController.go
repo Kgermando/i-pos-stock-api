@@ -51,6 +51,7 @@ func GetPaginatedUsers(c *fiber.Ctx) error {
 		// ).
 		Order("users.updated_at DESC").
 		Preload("Entreprise").
+		Preload("Pos").
 		Find(&dataList)
 
 	if err != nil {
@@ -107,6 +108,7 @@ func GetPaginatedUserByID(c *fiber.Ctx) error {
 		Limit(limit).
 		Order("users.updated_at DESC").
 		Preload("Entreprise").
+		Preload("Pos").
 		Find(&dataList)
 
 	if err != nil {
@@ -129,7 +131,7 @@ func GetPaginatedUserByID(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"status":     "success",
-		"message":    "All bonCommandeLine by BonCommande",
+		"message":    "All users",
 		"data":       dataList,
 		"pagination": pagination,
 	})
@@ -139,7 +141,9 @@ func GetPaginatedUserByID(c *fiber.Ctx) error {
 func GetAllUsers(c *fiber.Ctx) error {
 	db := database.DB
 	var users []models.User
-	db.Find(&users)
+	db.Order("users.updated_at DESC").
+		Preload("Entreprise").
+		Preload("Pos").Find(&users)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All users",
@@ -267,7 +271,7 @@ func UpdateUser(c *fiber.Ctx) error {
 		EntrepriseID uint   `json:"entreprise_id"`
 		PosID        uint   `json:"pos_id"`
 		Signature    string `json:"signature"`
-	}
+	} 
 	var updateData UpdateDataInput
 
 	if err := c.BodyParser(&updateData); err != nil {

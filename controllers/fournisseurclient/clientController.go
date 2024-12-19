@@ -12,6 +12,7 @@ import (
 // Paginate
 func GetPaginatedClient(c *fiber.Ctx) error {
 	db := database.DB
+	codeEntreprise := c.Params("code_entreprise")
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -28,8 +29,8 @@ func GetPaginatedClient(c *fiber.Ctx) error {
 	var dataList []models.Client
 
 	var length int64
-	db.Model(dataList).Count(&length)
-	db.
+	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).Count(&length)
+	db.Where("code_entreprise = ?", codeEntreprise).
 		Where("fullname ILIKE ?", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -64,9 +65,11 @@ func GetPaginatedClient(c *fiber.Ctx) error {
 
 // Get All data
 func GetAllClients(c *fiber.Ctx) error {
+	codeEntreprise := c.Params("code_entreprise")
 	db := database.DB
+
 	var data []models.Client
-	db.Preload("Commandes").Find(&data)
+	db.Where("code_entreprise = ?", codeEntreprise).Preload("Commandes").Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All clients",
@@ -78,9 +81,10 @@ func GetAllClients(c *fiber.Ctx) error {
 func GetClient(c *fiber.Ctx) error {
 	id := c.Params("id")
 	db := database.DB
+
 	var client models.Client
 	db.Preload("Commandes").Find(&client, id)
-	if client.FullName == "" {
+	if client.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -123,10 +127,11 @@ func UpdateClient(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		FullName  string `json:"fullname"`
-		Telephone string `json:"telephone"`
-		Email     string `json:"email"`
-		Signature string `json:"signature"`
+		Fullname       string `json:"fullname"`
+		Telephone      string `json:"telephone"`
+		Email          string `json:"email"`
+		Signature      string `json:"signature"`
+		CodeEntreprise uint   `json:"code_entreprise"`
 	}
 
 	var updateData UpdateData
@@ -144,10 +149,11 @@ func UpdateClient(c *fiber.Ctx) error {
 	client := new(models.Client)
 
 	db.First(&client, id)
-	client.FullName = updateData.FullName
-    client.Telephone = updateData.Telephone
-    client.Email = updateData.Email
+	client.Fullname = updateData.Fullname
+	client.Telephone = updateData.Telephone
+	client.Email = updateData.Email
 	client.Signature = updateData.Signature
+	client.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&client)
 
@@ -169,7 +175,7 @@ func DeleteClient(c *fiber.Ctx) error {
 
 	var client models.Client
 	db.First(&client, id)
-	if client.FullName == "" {
+	if client.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",

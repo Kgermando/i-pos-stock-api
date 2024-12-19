@@ -64,7 +64,7 @@ func GetPaginatedEntreprise(c *fiber.Ctx) error {
 			Status:         entreprise.Status,
 			Abonnement:     entreprise.Abonnement,
 			Signature:      entreprise.Signature,
-			TotalUser:    len(entreprise.Users),
+			TotalUser:      len(entreprise.Users),
 			TotalPos:       len(entreprise.Pos),
 		})
 	}

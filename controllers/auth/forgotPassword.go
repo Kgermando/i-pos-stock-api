@@ -32,7 +32,7 @@ func Forgot(c *fiber.Ctx) error {
 
 	database.DB.Where("email = ?", u.Email).First(um)
 
-	if um.ID == 0 {
+	if um.Email == "" { 
 		c.Status(400)
 		return c.JSON(fiber.Map{
 			"message": "invalid email address 😰",
