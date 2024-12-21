@@ -35,19 +35,21 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 		Joins("JOIN products ON stocks.product_id=products.id").
 		// Joins("JOIN fournisseurs ON stocks.fournisseur_id=fournisseurs.id").
 		Where("products.name ILIKE ? OR products.reference ILIKE ?", "%"+search+"%", "%"+search+"%").
-		Select(`
-			stocks.id AS id,
-			products.reference AS reference,
-			products.name AS name,
-			stocks.quantity AS quantity,
-			stocks.prix_achat AS prix_achat, 
-			stocks.date_expiration AS date_expiration,
-			stocks.description AS description,
-			stocks.signature AS signature
-		`).
+		// Select(`
+		// 	stocks.id AS id,
+		// 	products.reference AS reference,
+		// 	products.name AS name,
+		// 	stocks.quantity AS quantity,
+		// 	stocks.prix_achat AS prix_achat, 
+		// 	stocks.date_expiration AS date_expiration,
+		// 	stocks.description AS description,
+		// 	stocks.created_at AS created_at,
+		// 	stocks.updated_at AS updated_at,
+		// 	stocks.signature AS signature
+		// `).
 		Offset(offset).
 		Limit(limit).
-		Order("stocks.updated_at DESC").
+		Order("stocks.created_at DESC").
 		Preload("Product").
 		Preload("Fournisseur").
 		Find(&dataList)
@@ -76,6 +78,23 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 		"pagination": pagination,
 	})
 }
+
+// Get data
+func GetStockMargeBeneficiaire(c *fiber.Ctx) error {
+	db := database.DB
+	productId := c.Params("product_id")
+
+	var data models.Stock 
+
+	db.Model(data).Where("product_id = ?", productId).Preload("Product").Last(&data)
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "Total qty stocks",
+		"data":    data,
+	})
+}
+
 
 // Get Total data
 func GetTotalStock(c *fiber.Ctx) error {

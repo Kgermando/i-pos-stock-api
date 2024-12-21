@@ -6,6 +6,7 @@ import (
 	"github.com/kgermando/i-pos-stock/controllers/auth"
 	"github.com/kgermando/i-pos-stock/controllers/commande"
 	"github.com/kgermando/i-pos-stock/controllers/contact"
+	"github.com/kgermando/i-pos-stock/controllers/dashboard"
 	"github.com/kgermando/i-pos-stock/controllers/entreprise"
 	"github.com/kgermando/i-pos-stock/controllers/fournisseurclient"
 	"github.com/kgermando/i-pos-stock/controllers/pos"
@@ -82,6 +83,7 @@ func Setup(app *fiber.App) {
 	s.Get("/all", stock.GetAllStocks)
 	s.Get("/all/paginate/:product_id", stock.GetPaginatedStock)
 	s.Get("/all/total/:product_id", stock.GetTotalStock)
+	s.Get("/all/get/:product_id", stock.GetStockMargeBeneficiaire)
 	s.Get("/get/:id", stock.GetStock)
 	s.Post("/create", stock.CreateStock)
 	s.Put("/update/:id", stock.UpdateStock)
@@ -100,23 +102,13 @@ func Setup(app *fiber.App) {
 	// Commande line controller
 	cmdl := api.Group("/commandes-lines")
 	cmdl.Get("/all", commande.GetAllCommandeLines)
-	cmdl.Get("/all/:commande_id", commande.GetAllCommandeLineById)
-	cmdl.Get("/all/paginate", commande.GetPaginatedCommandeLine)
+	cmdl.Get("/all/:commande_id", commande.GetAllCommandeLineById) 
 	cmdl.Get("/all/paginate/:commande_id", commande.GetPaginatedCommandeLineByID)
 	cmdl.Get("/all/total/:product_id", commande.GetTotalCommandeLine)
 	cmdl.Get("/get/:id", commande.GetCommandeLine)
 	cmdl.Post("/create", commande.CreateCommandeLine)
 	cmdl.Put("/update/:id", commande.UpdateCommandeLine)
 	cmdl.Delete("/delete/:id", commande.DeleteCommandeLine)
-
-	// // Stock dispo controller
-	// sd := api.Group("/stocks-dispos")
-	// sd.Get("/:code_entreprise/:pos_id/all", product.GetAllStockDispo)
-	// sd.Get("/:code_entreprise/:pos_id/all/:product_id", product.GetStockDispoSUM)
-	// sd.Get("/:code_entreprise/:pos_id/one/:product_id", product.GetStockDispo)
-	// sd.Post("/", product.CreateStockDispo)
-	// sd.Put("/:id", product.UpdateStockDispo)
-	// sd.Delete("/:id", product.DeleteStockDispo)
 
 	// Client controller
 	cl := api.Group("/clients") 
@@ -145,4 +137,17 @@ func Setup(app *fiber.App) {
 	ctc.Put("/update/:id", contact.UpdateContact)
 	ctc.Delete("/delete/:id", contact.DeleteContact)
 
+
+	// Dashboard controller
+	dash := api.Group("/dashboard")
+	dash.Get("/:code_entreprise/all/stocks", dashboard.GetPaginatedStock)
+	dash.Get("/:code_entreprise/all/commandeline", dashboard.GetPaginatedCommandeLine)
+	dash.Get("/:code_entreprise/all/entree-sortie", dashboard.GetEntreeSortie)
+	dash.Get("/:code_entreprise/all/sales-profits", dashboard.GetSaleProfit)
+	dash.Get("/:code_entreprise/all/stocks-disponible", dashboard.GetStockDisponible)
+	dash.Get("/:code_entreprise/all/total-product-in-stock", dashboard.GetTotalProductInStock)
+	dash.Get("/:code_entreprise/all/total-stock-dispo-sortie", dashboard.GetTotalStockDispoSortie)
+	dash.Get("/:code_entreprise/all/total-valeur-products", dashboard.GetTotalValeurProduct)
+
+	
 }

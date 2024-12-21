@@ -9,67 +9,7 @@ import (
 	"github.com/kgermando/i-pos-stock/models"
 )
 
-// Paginate
-func GetPaginatedCommandeLine(c *fiber.Ctx) error {
-	db := database.DB
 
-	page, err := strconv.Atoi(c.Query("page", "1"))
-	if err != nil || page <= 0 {
-		page = 1 // Default page number
-	}
-	limit, err := strconv.Atoi(c.Query("limit", "15"))
-	if err != nil || limit <= 0 {
-		limit = 15
-	}
-	offset := (page - 1) * limit
-
-	search := c.Query("search", "")
-
-	var dataList []models.CommandeLine
-
-	var length int64
-	db.Model(dataList).Count(&length)
-	db.Joins("JOIN commandes ON commande_lines.commande_id=commandes.id").
-		Joins("JOIN products ON commande_lines.product_id=products.id").
-		Where("products.name ILIKE ? OR products.reference ILIKE ?", "%"+search+"%", "%"+search+"%").
-		Select(`
-			commande_lines.id AS id,
-			products.reference AS reference,
-			products.name AS name,
-			products.description AS description,
-			products.unite_vente AS unite_vente,
-			commande_lines.quantity AS quantity,
-			products.prix_vente AS prix_vente
-		`).
-		Offset(offset).
-		Limit(limit).
-		Order("commande_lines.updated_at DESC").
-		Find(&dataList)
-
-	if err != nil {
-		fmt.Println("error s'est produite: ", err)
-		return c.Status(500).SendString(err.Error())
-	}
-
-	// Calculate total number of pages
-	totalPages := len(dataList) / limit
-	if remainder := len(dataList) % limit; remainder > 0 {
-		totalPages++
-	}
-	pagination := map[string]interface{}{
-		"total_pages": totalPages,
-		"page":        page,
-		"page_size":   limit,
-		"length":      length,
-	}
-
-	return c.JSON(fiber.Map{
-		"status":     "success",
-		"message":    "All commandeLines",
-		"data":       dataList,
-		"pagination": pagination,
-	})
-}
 
 // Query all data ID
 func GetPaginatedCommandeLineByID(c *fiber.Ctx) error {

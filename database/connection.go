@@ -45,8 +45,8 @@ func Connect() {
 		&models.Fournisseur{},
 		&models.Pos{},
 		&models.Product{},
-		&models.Stock{}, 
-		&models.StockDispo{},
+		&models.Stock{},
+	
 	)
 
 }
