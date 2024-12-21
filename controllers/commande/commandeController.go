@@ -85,7 +85,8 @@ func GetPaginatedCommande(c *fiber.Ctx) error {
 	var dataList []models.Commande
 
 	var length int64
-	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).Count(&length)
+	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).
+	Where("pos_id = ?", posId).Count(&length)
 	db.Where("code_entreprise = ?", codeEntreprise).
 		Where("pos_id = ?", posId).
 		Where("ncommande ILIKE ?", "%"+search+"%").

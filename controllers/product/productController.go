@@ -85,7 +85,8 @@ func GetPaginatedProduct(c *fiber.Ctx) error {
 	var dataList []models.Product
 
 	var length int64
-	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).Count(&length)
+	db.Model(dataList).Where("code_entreprise = ?", codeEntreprise).
+	Where("pos_id = ?", posId).Count(&length)
 	db.Where("code_entreprise = ?", codeEntreprise).
 		Where("pos_id = ?", posId).
 		Where("name ILIKE ? OR reference ILIKE ?", "%"+search+"%", "%"+search+"%").
