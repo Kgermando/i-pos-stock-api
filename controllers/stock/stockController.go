@@ -86,11 +86,11 @@ func GetStockMargeBeneficiaire(c *fiber.Ctx) error {
 
 	var data models.Stock 
 
-	db.Model(data).Where("product_id = ?", productId).Preload("Product").Last(&data)
+	db.Model(data).Where("product_id = ?", productId).Where("prix_achat != ?", 0).Preload("Product").Last(&data)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
-		"message": "Total qty stocks",
+		"message": "Total marge beneficiare stocks",
 		"data":    data,
 	})
 }
