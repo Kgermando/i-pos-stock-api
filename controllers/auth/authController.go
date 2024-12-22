@@ -100,12 +100,12 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	if !u.Entreprise.Status {
-		c.Status(400)
-		return c.JSON(fiber.Map{
-			"message": "Structure non autorisée 😰",
-		})
-	}
+	// if !u.Entreprise.Status {
+	// 	c.Status(400)
+	// 	return c.JSON(fiber.Map{
+	// 		"message": "Structure non autorisée 😰",
+	// 	})
+	// }
 
 	if !u.Status {
 		c.Status(400)
