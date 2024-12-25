@@ -3,6 +3,7 @@ package dashboard
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/kgermando/i-pos-stock/database"
@@ -395,8 +396,68 @@ func GetTotalValeurProduct(c *fiber.Ctx) error {
 	})
 }
 
+func GetCourbeVente24h(c *fiber.Ctx) error {
+	db := database.DB
+	codeEntreprise := c.Params("code_entreprise")
+
+
+	var commandeLines []models.CommandeLine
+	db.Where("commande_lines.code_entreprise = ?", codeEntreprise).
+	Where("date(created_at) = date('now')").
+	Preload("Plat").
+	Preload("Product").
+	Find(&commandeLines)
+
+	hourlySales := make(map[int]float64)
+	for i := 0; i < 24; i++ {
+		hourlySales[i] = 0
+	}
+
+	for _, sale := range commandeLines {
+		hour := sale.CreatedAt.Hour()
+		hourlySales[hour] += sale.Product.PrixVente
+	}
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "Courbe de ventes journaliere",
+		"data":    hourlySales,
+	})
+}
+
+func GetTotalVente24h(c *fiber.Ctx) error {
+	db := database.DB
+	codeEntreprise := c.Params("code_entreprise") 
+
+	var commandeLines []models.CommandeLine
+	startOfDay := time.Now().Truncate(24 * time.Hour)
+	endOfDay := startOfDay.Add(24 * time.Hour).Add(-1 * time.Second)
+	db.Where("commande_lines.code_entreprise = ?", codeEntreprise).
+	Where("created_at BETWEEN ? AND ?", startOfDay, endOfDay).
+	Preload("Product").
+	Find(&commandeLines)
+
+	totalSales := 0.0
+	for _, sale := range commandeLines {
+		totalSales += sale.Product.PrixVente
+	}
+ 
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "total ventes journalieres",
+		"data":    totalSales,
+	})
+}
+
+
+
 func getStockEntry(productID uint, db *gorm.DB) models.Stock {
 	var stock models.Stock
-	db.Where("product_id = ?", productID).First(&stock)
+	if productID != 0 {
+		db.Where("product_id = ?", productID).First(&stock) 
+	}
+	
 	return stock
 }
+
+
