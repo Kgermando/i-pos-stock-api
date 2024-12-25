@@ -404,7 +404,6 @@ func GetCourbeVente24h(c *fiber.Ctx) error {
 	var commandeLines []models.CommandeLine
 	db.Where("commande_lines.code_entreprise = ?", codeEntreprise).
 	Where("date(created_at) = date('now')").
-	Preload("Plat").
 	Preload("Product").
 	Find(&commandeLines)
 
